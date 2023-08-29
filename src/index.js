@@ -6,10 +6,11 @@ import "./index.css";
 import App from "./App";
 import RecipeSearch from "./Routes/RecipeSearch";
 // import RecipeEdit from "./Routes/RecipeEdit";
-// import Materials from "./Routes/Materials";
-// import RecipeProcedure from "./Routes/RecipeProcedure";
-// import ErrorLog from "./Routes/ErrorLog";
-// import ReportCIP from "./Routes/ReportCIP";
+import Materials from "./Routes/Materials";
+import RecipeProcedure from "./Routes/RecipeProcedure";
+import ErrorLog from "./Routes/ErrorLog";
+import ReportCIP from "./Routes/ReportCIP";
+import SampleCIPReport from "./Routes/SampleCIPReport";
 
 // Routes for frontend navigation
 // TODO: Create an error route
@@ -22,26 +23,30 @@ const router = createBrowserRouter([
         path: "recipes",
         element: <RecipeSearch />,
       },
-    //   {
-    //     path: "recipes/:RID/:Version/edit",
-    //     element: <RecipeEdit />,
-    //   },
-    //   {
-    //     path: "materials",
-    //     element: <Materials />,
-    //   },
-    //   {
-    //     path: "procedure",
-    //     element: <RecipeProcedure />,
-    //   },
-    //   {
-    //     path: "errorLog",
-    //     element: <ErrorLog />,
-    //   },
-    //   {
-    //     path: "reportCIP",
-    //     element: <ReportCIP />,
-    //   },
+      //   {
+      //     path: "recipes/:RID/:Version/edit",
+      //     element: <RecipeEdit />,
+      //   },
+      {
+        path: "materials",
+        element: <Materials />,
+      },
+      {
+        path: "procedure",
+        element: <RecipeProcedure />,
+      },
+      {
+        path: "errorLog",
+        element: <ErrorLog />,
+      },
+      {
+        path: "reportCIP",
+        element: <ReportCIP />,
+      },
+      {
+        path: "sampleCIPReport",
+        element: <SampleCIPReport />,
+      },
     ],
   },
 ]);

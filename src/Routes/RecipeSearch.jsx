@@ -22,6 +22,8 @@ import {
   getRequiredProcessClasses,
 } from "../Requests/RecipeSearch";
 
+import RecipeView from "../Components/RecipeView/RecipeView";
+
 // TODO rename components
 // import EnhancedTableToolbar from "../Components/Table/EnhancedTableToolbar/EnhancedTableToolbar";
 // import EnhancedModal from "../Components/Modals/EnhancedModal/EnhancedModal";
@@ -33,7 +35,8 @@ import {
 const RecipeSearch = () => {
   const [fullDatabase, setFullDatabase] = useState([]);
   const [latestVersion, setLatestVersionRecipes] = useState([]);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState([]);
+
   const [page, setPage] = useState(0);
   const [rows, setRows] = useState([]);
   const [materials, setMaterials] = useState([]);
@@ -47,6 +50,7 @@ const RecipeSearch = () => {
   const [messageInfo, setMessageInfo] = React.useState(undefined);
   const [mode, setMode] = useState("Search");
   const [checked, setShowAllChecked] = React.useState(false);
+
   const [filter, setFilter] = useState({
     showAll: false,
     approved: false,
@@ -144,19 +148,7 @@ const RecipeSearch = () => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
   };
-  const clearFilters = () => {
-    setFilteredInfo({});
-  };
-  const clearAll = () => {
-    setFilteredInfo({});
-    setSortedInfo({});
-  };
-  const setAgeSort = () => {
-    setSortedInfo({
-      order: "descend",
-      columnKey: "age",
-    });
-  };
+
   const columns = [
     {
       title: "RID",
@@ -215,6 +207,13 @@ const RecipeSearch = () => {
       responsive: ["xl"],
     },
   ];
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  const onSelectChange = (selectedRowKeys) => {
+    setSelectedRowKeys(selectedRowKeys);
+  };
+
   const formatter = (value) => <CountUp end={value} separator="," />;
   const formatter2 = (value) => (
     <CountUp end={value} separator="," suffix=" gal" />
@@ -222,63 +221,74 @@ const RecipeSearch = () => {
   return (
     <>
       <Row gutter={[16, 16]}>
-        <Col span={4}>
-          <Card>
-            <Statistic
-              title="Approved Recipes"
-              value={rows.length}
-              formatter={formatter}
-            />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card>
-            <Statistic
-              title="Another Stat"
-              value={18432456}
-              formatter={formatter}
-            />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card>
-            <Statistic
-              title="Water Usage"
-              value={112893}
-              formatter={formatter2}
-            />
-          </Card>
-        </Col>
-        <Col span={12}></Col>
-        <Col sm={24} md={24} lg={24} xl={12}>
-          <Card title="Recipe Search">
-            <Space
-              style={{
-                marginBottom: 16,
-              }}
-            >
-              <Button onClick={setAgeSort}>Sort age</Button>
-              <Button onClick={clearFilters}>Clear filters</Button>
-              <Button onClick={clearAll}>Clear filters and sorters</Button>
-            </Space>
+        <Col span={24}>
+          <Row gutter={[16, 16]}>
+            {/* <Col span={4}>
+              <Card>
+                <Statistic
+                  title="Approved Recipes"
+                  value={rows.length}
+                  formatter={formatter}
+                />
+              </Card>
+            </Col>
+            <Col span={4}>
+              <Card>
+                <Statistic
+                  title="Another Stat"
+                  value={18432456}
+                  formatter={formatter}
+                />
+              </Card>
+            </Col>
+            <Col span={4}>
+              <Card>
+                <Statistic
+                  title="Water Usage"
+                  value={112893}
+                  formatter={formatter2}
+                />
+              </Card>
+            </Col>
 
-            <Table
-              size={"small"}
-              columns={columns}
-              dataSource={rows}
-              onChange={handleChange}
-              pagination={{
-                total: rows.length,
-                showTotal: (total) => `Total ${total} items`,
-                defaultPageSize: 10,
-                pageSizeOptions: [5, 10, 15],
-                defaultCurrent: 1,
-                showSizeChanger: true,
-              }}
-            />
-          </Card>
+            <Col span={12}></Col> */}
+
+            <Col sm={24} md={24} lg={24} xl={12}>
+              <Card title="Recipe Search">
+                <Table
+                  size={"small"}
+                  columns={columns}
+                  dataSource={rows}
+                  onChange={handleChange}
+                  pagination={{
+                    total: rows.length,
+                    showTotal: (total) => `Total ${total} items`,
+                    defaultPageSize: 10,
+                    pageSizeOptions: [5, 10, 15],
+                    defaultCurrent: 1,
+                    showSizeChanger: true,
+                  }}
+                  onRow={(record) => {
+                    return {
+                      style: { cursor: "pointer" },
+                      onClick: () => {
+                        onSelectChange([record.key]); // Select the clicked row
+                      },
+                    };
+                  }}
+                  rowSelection={{
+                    type: "radio", // Use radio buttons for row selection
+                    selectedRowKeys,
+                    onChange: onSelectChange,
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col sm={24} md={12} lg={12} xl={12}>
+              <RecipeView />
+            </Col>
+          </Row>
         </Col>
-        <Col sm={24} md={24} lg={24} xl={12}></Col>
       </Row>
     </>
   );
