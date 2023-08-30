@@ -228,62 +228,65 @@ const RecipeProcedure = () => {
   return (
     <Row>
       <Col span={12}>
-        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <Card style={{ height: "calc(100vh - 100px)" }}>
-            <Row>
-              <Col span={12}>
-                <Select
-                  dropdownStyle={{
-                    zIndex: 10000,
-                  }}
-                  style={{ width: "100%" }}
-                  value={recipeSelect}
-                  onChange={(recipe) => {
-                    setRecipeSelect(recipe);
-                  }}
-                  options={Array.from(
-                    [...new Set(recipes.map((recipe) => recipe.RID))].map(
-                      (name) => {
-                        return { value: name, label: name };
-                      }
-                    )
-                  )}
-                />
-              </Col>
-              <Col span={6}>
-                <Select
-                  dropdownStyle={{
-                    zIndex: 10000,
-                  }}
-                  style={{ width: "100%" }}
-                  value={versionSelect}
-                  disabled={!recipeSelect}
-                  onChange={(version) => {
-                    setVersionSelect(version);
-                  }}
-                  options={Array.from(
-                    [
-                      ...recipes
-                        .filter((recipe) => recipe.RID === recipeSelect)
-                        .map((recipe) => recipe.Version)
-                        .sort((a, b) => a - b),
-                    ].map((version) => {
-                      return { value: version, label: version };
-                    })
-                  )}
-                />
-              </Col>
-              <Col span={6}>
-                <Button
-                  type="primary"
-                  disabled={!versionSelect}
-                  style={{ width: "100%" }}
-                  onClick={procedureSearchButton}
-                >
-                  Confirm
-                </Button>
-              </Col>
-            </Row>
+        <Card style={{ height: "calc(100vh - 100px)" }}>
+          <Row>
+            <Col span={12}>
+              <Select
+                dropdownStyle={{
+                  zIndex: 10000,
+                }}
+                style={{ width: "100%" }}
+                value={recipeSelect}
+                onChange={(recipe) => {
+                  setRecipeSelect(recipe);
+                }}
+                options={Array.from(
+                  [...new Set(recipes.map((recipe) => recipe.RID))].map(
+                    (name) => {
+                      return { value: name, label: name };
+                    }
+                  )
+                )}
+              />
+            </Col>
+            <Col span={6}>
+              <Select
+                dropdownStyle={{
+                  zIndex: 10000,
+                }}
+                style={{ width: "100%" }}
+                value={versionSelect}
+                disabled={!recipeSelect}
+                onChange={(version) => {
+                  setVersionSelect(version);
+                }}
+                options={Array.from(
+                  [
+                    ...recipes
+                      .filter((recipe) => recipe.RID === recipeSelect)
+                      .map((recipe) => recipe.Version)
+                      .sort((a, b) => a - b),
+                  ].map((version) => {
+                    return { value: version, label: version };
+                  })
+                )}
+              />
+            </Col>
+            <Col span={6}>
+              <Button
+                type="primary"
+                disabled={!versionSelect}
+                style={{ width: "100%" }}
+                onClick={procedureSearchButton}
+              >
+                Confirm
+              </Button>
+            </Col>
+          </Row>
+          <DndContext
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={onDragEnd}
+          >
             <SortableContext
               items={steps.map((i) => i.ID)}
               strategy={verticalListSortingStrategy}
@@ -302,8 +305,8 @@ const RecipeProcedure = () => {
                 scroll={{ y: "75vh" }}
               />
             </SortableContext>
-          </Card>
-        </DndContext>
+          </DndContext>
+        </Card>
       </Col>
     </Row>
   );

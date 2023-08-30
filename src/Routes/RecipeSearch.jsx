@@ -35,8 +35,8 @@ import RecipeView from "../Components/RecipeView/RecipeView";
 const RecipeSearch = () => {
   const [fullDatabase, setFullDatabase] = useState([]);
   const [latestVersion, setLatestVersionRecipes] = useState([]);
-  const [selected, setSelected] = useState([]);
-
+  const [selected, setSelected] = useState({});
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rows, setRows] = useState([]);
   const [materials, setMaterials] = useState([]);
@@ -111,6 +111,7 @@ const RecipeSearch = () => {
           setRequiredProcessClasses(allRequiredProcessClasses);
         }
       )
+      .then(() => setLoading(false))
       .catch((err) => console.log(err));
   }
 
@@ -210,8 +211,10 @@ const RecipeSearch = () => {
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  const onSelectChange = (selectedRowKeys) => {
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectChange = (record) => {
+    setSelected(record);
+    setSelectedRowKeys([record.key]);
+    console.log(record);
   };
 
   const formatter = (value) => <CountUp end={value} separator="," />;
@@ -257,6 +260,7 @@ const RecipeSearch = () => {
               <Card title="Recipe Search">
                 <Table
                   size={"small"}
+                  loading={loading}
                   columns={columns}
                   dataSource={rows}
                   onChange={handleChange}
@@ -272,20 +276,29 @@ const RecipeSearch = () => {
                     return {
                       style: { cursor: "pointer" },
                       onClick: () => {
-                        onSelectChange([record.key]); // Select the clicked row
+                        onSelectChange(record); // Select the clicked row
+                        console.log("onclick");
                       },
                     };
                   }}
                   rowSelection={{
                     type: "radio", // Use radio buttons for row selection
                     selectedRowKeys,
+                    getCheckboxProps: () => {
+                      return {
+                        style: {
+                          display: "none",
+                        },
+                      };
+                    },
+  
                     onChange: onSelectChange,
                   }}
                 />
               </Card>
             </Col>
             <Col sm={24} md={12} lg={12} xl={12}>
-              <RecipeView />
+              {selected && <RecipeView selected={selected} />}
             </Col>
           </Row>
         </Col>
