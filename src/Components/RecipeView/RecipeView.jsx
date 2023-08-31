@@ -76,28 +76,28 @@ const RecipeView = (props) => {
     {
       key: "2",
       label: "Date",
-      span: 2,
+      // span: 2,
       children: selected.VersionDate,
     },
     {
       key: "3",
       label: "Status",
-      span: 3,
+      // span: 3,
       children: selected.Status,
     },
     {
       key: "4",
-      label: "Max",
+      label: "Max Batch Size",
       children: selected.BatchSizeMax,
     },
     {
       key: "5",
-      label: "Max",
+      label: "Min Batch Size",
       children: selected.BatchSizeMin,
     },
     {
       key: "6",
-      label: "Nominal",
+      label: "Nominal Batch Size",
       children: selected.BatchSizeNominal,
     },
   ];
@@ -131,7 +131,7 @@ const RecipeView = (props) => {
         <TextArea
           showCount
           // maxLength={100}
-          style={{ height: 500, resize: "none" }}
+          style={{ height: 600, resize: "none" }}
           onChange={onChange}
           placeholder="disable resize"
           defaultValue="Title: Savory Herb-Crusted Baked Salmon
@@ -170,7 +170,7 @@ const RecipeView = (props) => {
   ];
 
   return (
-    <Card>
+    <Card style={{ height: "90vh" }}>
       {loading ? (
         <Typography>Loading</Typography>
       ) : (
@@ -192,7 +192,7 @@ const RecipeView = (props) => {
                 defaultActiveKey="1"
                 type="card"
                 items={recipeView}
-                style={{ width: "100%" }}
+                style={{ width: "100%", height: "100%" }}
               />
             </Col>
           </Row>

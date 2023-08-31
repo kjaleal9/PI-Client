@@ -37,19 +37,11 @@ const RecipeSearch = () => {
   const [latestVersion, setLatestVersionRecipes] = useState([]);
   const [selected, setSelected] = useState({});
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
   const [rows, setRows] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [materialClasses, setMaterialClasses] = useState([]);
   const [processClasses, setProcessClasses] = useState([]);
   const [requiredProcessClasses, setRequiredProcessClasses] = useState([]);
-  const [openNewModal, setOpenNewModal] = useState(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [openSnackBar, setOpenSnackbar] = useState(false);
-  const [snackPack, setSnackPack] = React.useState([]);
-  const [messageInfo, setMessageInfo] = React.useState(undefined);
-  const [mode, setMode] = useState("Search");
-  const [checked, setShowAllChecked] = React.useState(false);
 
   const [filter, setFilter] = useState({
     showAll: false,
@@ -124,9 +116,6 @@ const RecipeSearch = () => {
     filterRows();
   }, [filter]);
 
-  const handleDelete = () => {
-    setOpenDeleteDialog(true);
-  };
 
   function filterRows() {
     console.time("Filter");
@@ -217,90 +206,52 @@ const RecipeSearch = () => {
     console.log(record);
   };
 
-  const formatter = (value) => <CountUp end={value} separator="," />;
-  const formatter2 = (value) => (
-    <CountUp end={value} separator="," suffix=" gal" />
-  );
   return (
     <>
       <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Row gutter={[16, 16]}>
-            {/* <Col span={4}>
-              <Card>
-                <Statistic
-                  title="Approved Recipes"
-                  value={rows.length}
-                  formatter={formatter}
-                />
-              </Card>
-            </Col>
-            <Col span={4}>
-              <Card>
-                <Statistic
-                  title="Another Stat"
-                  value={18432456}
-                  formatter={formatter}
-                />
-              </Card>
-            </Col>
-            <Col span={4}>
-              <Card>
-                <Statistic
-                  title="Water Usage"
-                  value={112893}
-                  formatter={formatter2}
-                />
-              </Card>
-            </Col>
-
-            <Col span={12}></Col> */}
-
-            <Col sm={24} md={24} lg={24} xl={12}>
-              <Card title="Recipe Search">
-                <Table
-                  size={"small"}
-                  loading={loading}
-                  columns={columns}
-                  dataSource={rows}
-                  onChange={handleChange}
-                  pagination={{
-                    total: rows.length,
-                    showTotal: (total) => `Total ${total} items`,
-                    defaultPageSize: 10,
-                    pageSizeOptions: [5, 10, 15],
-                    defaultCurrent: 1,
-                    showSizeChanger: true,
-                  }}
-                  onRow={(record) => {
-                    return {
-                      style: { cursor: "pointer" },
-                      onClick: () => {
-                        onSelectChange(record); // Select the clicked row
-                        console.log("onclick");
-                      },
-                    };
-                  }}
-                  rowSelection={{
-                    type: "radio", // Use radio buttons for row selection
-                    selectedRowKeys,
-                    getCheckboxProps: () => {
-                      return {
-                        style: {
-                          display: "none",
-                        },
-                      };
+        <Col sm={24} md={14}>
+          <Card title="Recipe Search" style={{height:'90vh'}}>
+            <Table
+              size={"small"}
+              loading={loading}
+              columns={columns}
+              dataSource={rows}
+              onChange={handleChange}
+              pagination={{
+                total: rows.length,
+                showTotal: (total) => `Total ${total} items`,
+                defaultPageSize: 17,
+                // pageSizeOptions: [5, 10, 15],
+                defaultCurrent: 1,
+                // showSizeChanger: true,
+              }}
+              onRow={(record) => {
+                return {
+                  style: { cursor: "pointer" },
+                  onClick: () => {
+                    onSelectChange(record); // Select the clicked row
+                    console.log("onclick");
+                  },
+                };
+              }}
+              rowSelection={{
+                type: "radio", // Use radio buttons for row selection
+                selectedRowKeys,
+                getCheckboxProps: () => {
+                  return {
+                    style: {
+                      display: "none",
                     },
-  
-                    onChange: onSelectChange,
-                  }}
-                />
-              </Card>
-            </Col>
-            <Col sm={24} md={12} lg={12} xl={12}>
-              {selected && <RecipeView selected={selected} />}
-            </Col>
-          </Row>
+                  };
+                },
+
+                onChange: onSelectChange,
+              }}
+            />
+          </Card>
+        </Col>
+        <Col sm={24} md={10} >
+          {selected && <RecipeView selected={selected} />}
         </Col>
       </Row>
     </>

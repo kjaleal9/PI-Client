@@ -24,7 +24,7 @@ const ProcedureView = (props) => {
         rowKey="ID"
         columns={columns}
         dataSource={procedure}
-        scroll={{ y: "40vh" }}
+        scroll={{ y: 580 }}
        
       />
     </>

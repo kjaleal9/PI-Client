@@ -26,46 +26,47 @@ function getItem(label, key, icon, children) {
 
 const items = [
   getItem(<Link to={"recipes"}>Recipes</Link>, "1", <ShopOutlined />),
-  getItem(<Link to={"materials"}>Materials</Link>, "2", <LaptopOutlined />),
+  getItem(<Link to={"trains"}>Trains</Link>, "2", <ShopOutlined />),
+  getItem(<Link to={"materials"}>Materials</Link>, "3", <LaptopOutlined />),
   getItem(
     <Link to={"procedure"}>Procedures</Link>,
-    "3",
+    "4",
     <OrderedListOutlined />
   ),
-  getItem(<Link to={"errorLog"}>Errors</Link>, "4", <StopOutlined />),
+  getItem(<Link to={"errorLog"}>Errors</Link>, "5", <StopOutlined />),
   getItem(
     <Link to={"reportCIP"}>CIP Reports</Link>,
-    "5",
-    <LineChartOutlined />
-  ),
-  getItem(
-    <Link to={"reportProduction"}>Production Reports</Link>,
     "6",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"performanceCIP"}>CIP Performance</Link>,
+    <Link to={"reportProduction"}>Production Reports</Link>,
     "7",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"performanceProduction"}>Production Performance</Link>,
+    <Link to={"performanceCIP"}>CIP Performance</Link>,
     "8",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"liveMonitoring"}>Live Monitoring</Link>,
+    <Link to={"performanceProduction"}>Production Performance</Link>,
     "9",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"qualityControl"}>QualityControl</Link>,
+    <Link to={"liveMonitoring"}>Live Monitoring</Link>,
     "10",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"traceability"}>Traceability</Link>,
+    <Link to={"qualityControl"}>QualityControl</Link>,
     "11",
+    <LineChartOutlined />
+  ),
+  getItem(
+    <Link to={"traceability"}>Traceability</Link>,
+    "12",
     <LineChartOutlined />
   ),
   getItem(
@@ -73,7 +74,7 @@ const items = [
     "13",
     <LineChartOutlined />
   ),
-  getItem(<Link to={"plcPump"}>PLC Pump</Link>, "12", <LineChartOutlined />),
+  getItem(<Link to={"plcPump"}>PLC Pump</Link>, "14", <LineChartOutlined />),
 ];
 
 const App = () => {

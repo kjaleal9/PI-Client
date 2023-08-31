@@ -10,7 +10,7 @@ const ProcessClassView = (props) => {
       label: `${processClass.ProcessClass_Name} - ${processClass.Equipment_Name}`,
       children: equipment
         .filter((item) => +item.ProcessClass_ID === +processClass.PClass_ID)
-        .map((filteredEquipment) => {
+        .map((filteredEquipment,index) => {
           return (
             <>
               <a>{filteredEquipment.Name}</a>
