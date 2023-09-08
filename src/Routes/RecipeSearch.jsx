@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import {
-  Card,
-  Space,
-  Typography,
-  Row,
-  Col,
-  Button,
-  Table,
-  Pagination,
-  Statistic,
-} from "antd";
-
-import CountUp from "react-countup";
+import { Card, Row, Col, Table, Divider } from "antd";
 
 import {
   getRecipes,
@@ -23,6 +11,9 @@ import {
 } from "../Requests/RecipeSearch";
 
 import RecipeView from "../Components/RecipeView/RecipeView";
+import RecipeSearchToolbar from "../Components/RecipeSearchToolbar/RecipeSearchToolbar";
+import RecipeStatistics from "../Components/RecipeStatistics/RecipeStatistics";
+import NewRecipeForm from "../Components/NewRecipeForm/NewRecipeForm";
 
 // TODO rename components
 // import EnhancedTableToolbar from "../Components/Table/EnhancedTableToolbar/EnhancedTableToolbar";
@@ -35,14 +26,34 @@ import RecipeView from "../Components/RecipeView/RecipeView";
 const RecipeSearch = () => {
   const [fullDatabase, setFullDatabase] = useState([]);
   const [latestVersion, setLatestVersionRecipes] = useState([]);
-  const [selected, setSelected] = useState({});
+  const [selected, setSelected] = useState("");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [materialClasses, setMaterialClasses] = useState([]);
   const [processClasses, setProcessClasses] = useState([]);
   const [requiredProcessClasses, setRequiredProcessClasses] = useState([]);
-
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [filteredInfo, setFilteredInfo] = useState({});
+  const [sortedInfo, setSortedInfo] = useState({});
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [modalText, setModalText] = useState("Content of the modal");
+  const showModal = () => {
+    setOpen(true);
+  };
+  const handleOk = () => {
+    setModalText("The modal will be closed after two seconds");
+    setConfirmLoading(true);
+    setTimeout(() => {
+      setOpen(false);
+      setConfirmLoading(false);
+    }, 2000);
+  };
+  const handleCancel = () => {
+    console.log("Clicked cancel button");
+    setOpen(false);
+  };
   const [filter, setFilter] = useState({
     showAll: false,
     approved: false,
@@ -58,7 +69,6 @@ const RecipeSearch = () => {
         if (!acc[key]) {
           acc[key] = [];
         }
-        // Add object to list for given key's value
         acc[key].push(obj);
         return acc;
       }, {});
@@ -116,8 +126,7 @@ const RecipeSearch = () => {
     filterRows();
   }, [filter]);
 
-
-  function filterRows() {
+  async function filterRows() {
     console.time("Filter");
     const { showAll, status } = filter;
     let filteredRows;
@@ -127,15 +136,11 @@ const RecipeSearch = () => {
         (!status || row.Status === status) &&
         row.RID.toLowerCase().includes(filter.search)
     );
-    setRows(filteredRows);
+    await setRows(filteredRows);
     console.timeEnd("Filter");
   }
 
-  const [filteredInfo, setFilteredInfo] = useState({});
-  const [sortedInfo, setSortedInfo] = useState({});
   const handleChange = (pagination, filters, sorter) => {
-    console.log("Various parameters", pagination, filters, sorter);
-    setFilteredInfo(filters);
     setSortedInfo(sorter);
   };
 
@@ -198,19 +203,43 @@ const RecipeSearch = () => {
     },
   ];
 
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-
   const onSelectChange = (record) => {
-    setSelected(record);
-    setSelectedRowKeys([record.key]);
-    console.log(record);
+    const selectedRow =
+      selected.RID === record.RID && selected.Version === record.Version;
+
+    if (selectedRow === false) {
+      setSelected(record);
+      setSelectedRowKeys([record.key]);
+    } else {
+      setSelected("");
+      setSelectedRowKeys([]);
+    }
   };
 
   return (
     <>
       <Row gutter={[16, 16]}>
+        {console.log(processClasses)}
+        <NewRecipeForm
+          open={open}
+          setOpen={setOpen}
+          materials={materials}
+          materialClasses={materialClasses}
+          processClasses={processClasses}
+          requiredProcessClasses={requiredProcessClasses}
+          rows={rows}
+          selected={selected}
+          setSelected={setSelected}
+        />
         <Col sm={24} md={14}>
-          <Card title="Recipe Search" style={{height:'90vh'}}>
+          <Card title="Recipe Search" style={{ height: "90vh" }}>
+            <RecipeSearchToolbar
+              filter={filter}
+              setFilter={setFilter}
+              anyRowSelected={selected !== ""}
+              setOpen={setOpen}
+            />
+            <Divider />
             <Table
               size={"small"}
               loading={loading}
@@ -220,22 +249,19 @@ const RecipeSearch = () => {
               pagination={{
                 total: rows.length,
                 showTotal: (total) => `Total ${total} items`,
-                defaultPageSize: 17,
-                // pageSizeOptions: [5, 10, 15],
+                defaultPageSize: 15,
                 defaultCurrent: 1,
-                // showSizeChanger: true,
               }}
               onRow={(record) => {
                 return {
                   style: { cursor: "pointer" },
                   onClick: () => {
-                    onSelectChange(record); // Select the clicked row
-                    console.log("onclick");
+                    onSelectChange(record);
                   },
                 };
               }}
               rowSelection={{
-                type: "radio", // Use radio buttons for row selection
+                type: "radio",
                 selectedRowKeys,
                 getCheckboxProps: () => {
                   return {
@@ -244,14 +270,17 @@ const RecipeSearch = () => {
                     },
                   };
                 },
-
                 onChange: onSelectChange,
               }}
             />
           </Card>
         </Col>
-        <Col sm={24} md={10} >
-          {selected && <RecipeView selected={selected} />}
+        <Col sm={24} md={10}>
+          {!selected ? (
+            <RecipeStatistics fullDatabase={fullDatabase} />
+          ) : (
+            <RecipeView selected={selected} />
+          )}
         </Col>
       </Row>
     </>

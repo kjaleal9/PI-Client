@@ -21,7 +21,7 @@ function getProcessClasses() {
 }
 function getRequiredProcessClasses() {
   return fetch(
-    `${process.env.REACT_APP_API_URL}/process-classes/required`
+    `${process.env.REACT_APP_API_URL}/recipes/process-classes/required`
   ).then((response) => response.json());
 }
 

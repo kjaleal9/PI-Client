@@ -33,7 +33,7 @@ const RecipeView = (props) => {
 
   const getRPC = () =>
     fetch(
-      `${process.env.REACT_APP_API_URL}/process-classes/required/${selected.RID}/${selected.Version}`
+      `${process.env.REACT_APP_API_URL}/recipes/process-classes/required/${selected.RID}/${selected.Version}`
     ).then((response) => response.json());
 
   const getEquipment = () =>
