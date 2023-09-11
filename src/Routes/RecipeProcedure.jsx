@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Form, useLoaderData } from "react-router-dom";
 
 import {
   getRecipes,
@@ -7,6 +8,7 @@ import {
   getMaterials,
   getMaterialClasses,
   getStepTypes,
+  getProcedureData,
 } from "../Requests/RecipeProcedure";
 
 import { Button, Card, Table, Row, Col, Select } from "antd";
@@ -113,6 +115,7 @@ const RecipeProcedure = () => {
   const [selectedRecipe, setSelectedRecipe] = useState([]);
   const [selectedRER, setSelectedRER] = useState("");
   const [isProcedureEditable, setIsProcedureEditable] = useState(false);
+  const { procedureData } = useLoaderData();
 
   // Move to route loader
 
@@ -151,6 +154,15 @@ const RecipeProcedure = () => {
 
   useEffect(() => {
     loadData();
+    const { procedure, RID, Version } = procedureData;
+    async function setFieldData() {
+      setSelectedRecipe(procedure);
+      await setRecipeSelect(RID);
+      setVersionSelect(Version);
+    }
+    if (procedure) {
+      setFieldData();
+    }
   }, []);
 
   useEffect(() => {
@@ -161,7 +173,6 @@ const RecipeProcedure = () => {
     const sortedSteps = selectedRecipe.map((step, index) => {
       return { ...step, Step: index + 1 };
     });
-    console.log(sortedSteps);
     setSteps(sortedSteps);
   }, [selectedRecipe]);
 
@@ -178,7 +189,7 @@ const RecipeProcedure = () => {
       })
     );
     fetch(
-      `${process.env.REACT_APP_API_URL}/process-classes/required/${recipeSelect}/${versionSelect}`
+      `${process.env.REACT_APP_API_URL}/recipes/process-classes/required/${recipeSelect}/${versionSelect}`
     )
       .then((response) => response.json())
       .then((data) => setSelectedRER(data));
@@ -209,7 +220,6 @@ const RecipeProcedure = () => {
   // };
 
   const onDragEnd = ({ active, over }) => {
-    console.log(active, over);
     if (active.id !== over?.id) {
       setSteps((previous) => {
         const activeIndex = previous.findIndex((i) => i.ID === active.id);

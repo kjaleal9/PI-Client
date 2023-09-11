@@ -29,6 +29,24 @@ function getEquipment() {
   );
 }
 
+function getProcedureData(RID, Version) {
+  function getProcedure() {
+    return fetch(
+      `${process.env.REACT_APP_API_URL}/recipes/procedure/${RID}/${Version}`
+    ).then((response) => response.json());
+  }
+  function getRequiredProcessClasses() {
+    return fetch(
+      `${process.env.REACT_APP_API_URL}/recipes/process-classes/required/${RID}/${Version}`
+    ).then((response) => response.json());
+  }
+  return Promise.all([getProcedure(), getRequiredProcessClasses()]).then(
+    ([procedure, requiredProcessClasses]) => {
+      return { procedure, requiredProcessClasses, RID, Version };
+    }
+  );
+}
+
 export {
   getRecipes,
   getPCPhases,
@@ -36,4 +54,5 @@ export {
   getMaterials,
   getMaterialClasses,
   getEquipment,
+  getProcedureData,
 };

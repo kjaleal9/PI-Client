@@ -12,10 +12,12 @@ import {
   Divider,
   Cascader,
   Tooltip,
+  Space,
+  message,
 } from "antd";
-import NumericInput from "../NumericInput/NumericInput";
-
-const { Option } = Select;
+import SubmitButton from "../SubmitButton/SubmitButton";
+import dayjs from "dayjs";
+import { addRecipe } from "../../Requests/RecipeSearch";
 
 const { SHOW_CHILD } = Cascader;
 
@@ -24,36 +26,6 @@ const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 24 },
 };
-const mockData = Array.from({
-  length: 20,
-}).map((_, i) => ({
-  key: i.toString(),
-  title: `content${i + 1}`,
-  description: `description of content${i + 1}`,
-}));
-
-// const cascaderData = [
-//   {
-//     value: "zhejiang",
-//     label: "Citric Acid Mix Ingredients",
-//     children: [
-//       {
-//         value: "hangzhou",
-//         label: "N1232345345 -N1234126",
-//       },
-//     ],
-//   },
-//   {
-//     value: "jiangsu",
-//     label: "Jiangsu",
-//     children: [
-//       {
-//         value: "nanjing",
-//         label: "Nanjing",
-//       },
-//     ],
-//   },
-// ];
 
 const NewRecipeForm = ({
   rows,
@@ -64,6 +36,8 @@ const NewRecipeForm = ({
   materials,
   materialClasses,
   processClasses,
+  equipment,
+  refreshTable,
   requiredProcessClasses,
 }) => {
   const [form] = Form.useForm();
@@ -74,20 +48,7 @@ const NewRecipeForm = ({
   const [batchSizeNom, setBatchSizeNom] = useState("");
   const [batchSizeMin, setBatchSizeMin] = useState("");
   const [batchSizeMax, setBatchSizeMax] = useState("");
-  const [submittable, setSubmittable] = useState(false);
   const [mainBatchSelect, setMainBatchSelect] = useState(null);
-  const values = Form.useWatch([], form);
-
-  useEffect(() => {
-    form.validateFields().then(
-      (values) => {
-        console.log(values);
-      },
-      () => {
-        setSubmittable(false);
-      }
-    );
-  }, [values]);
 
   const cascaderData = materialClasses.map((materialClass) => {
     return {
@@ -116,10 +77,6 @@ const NewRecipeForm = ({
   }));
 
   const onChange = (nextTargetKeys, direction, moveKeys) => {
-    console.log(nextTargetKeys, processClasses);
-    console.log(
-      processClasses.filter((processClass) => processClass.ID in nextTargetKeys)
-    );
     setMainBatchSelect(
       processClasses
         .filter((processClass) => {
@@ -144,7 +101,16 @@ const NewRecipeForm = ({
   };
 
   const onFinish = (values) => {
-    console.log(values);
+    addRecipe(processClasses, values)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        refreshTable();
+        setSelectedKeys([]);
+        setTargetKeys([]);
+        setOpen(false);
+        message.success("Recipe added");
+      });
   };
   const onChangeCasc = (value) => {
     console.log(value);
@@ -162,19 +128,11 @@ const NewRecipeForm = ({
     setModalText("The modal will be closed after two seconds");
     setConfirmLoading(true);
     form.submit((e) => console.log(e));
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
   };
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
   };
-
-  useEffect(() => {
-    console.log("Test");
-  }, []);
 
   return (
     <Modal
@@ -185,27 +143,38 @@ const NewRecipeForm = ({
       confirmLoading={confirmLoading}
       onCancel={handleCancel}
       width={1000}
-      okButtonProps={{
-        disabled: !submittable,
-      }}
+      footer={null}
+      destroyOnClose={true}
+      afterClose={() => console.log("closed")}
     >
-      {submittable}
-      <Form form={form} onFinish={onFinish} {...layout}>
+      {console.log(dayjs().format("YYYY-MM-DD HH:mm:ss"))}
+      <Form form={form} onFinish={onFinish} {...layout} preserve={false}>
         <Row gutter={[16, 16]} justify={"space-around"}>
           <Col span={10}>
             <Divider orientation="left">Recipe Information</Divider>
             <Form.Item
               name="RID"
               label="Recipe ID"
-              rules={[{ required: true }]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!rows.map((recipe) => recipe.RID).includes(value)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Recipe ID already exists!")
+                    );
+                  },
+                }),
+              ]}
             >
               <Input />
             </Form.Item>
-            <Form.Item
-              name="Description"
-              label="Description"
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="description" label="Description">
               <Input.TextArea
                 rows={2}
                 placeholder="maxLength is 120"
@@ -213,7 +182,7 @@ const NewRecipeForm = ({
               />
             </Form.Item>
             <Form.Item
-              name="Material"
+              name="material"
               label="Material"
               rules={[{ required: true }]}
             >
@@ -226,36 +195,101 @@ const NewRecipeForm = ({
             </Form.Item>
             <Divider orientation="left">Batch Size</Divider>
             <Form.Item
-              name="Nominal"
+              name="nominal"
               label="Nominal"
-              rules={[{ required: true }]}
+              // hasFeedback
+              dependencies={["min", "max"]}
+              rules={[
+                { required: true },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (
+                      getFieldValue("max") >= value &&
+                      getFieldValue("min") <= value
+                    ) {
+                      return Promise.resolve();
+                    }
+                    if (value > getFieldValue("max")) {
+                      return Promise.reject(
+                        new Error(
+                          "Nominal must be less than or equal to the max"
+                        )
+                      );
+                    }
+                    if (value < getFieldValue("min")) {
+                      return Promise.reject(
+                        new Error(
+                          "Nominal must be greater than or equal to the min"
+                        )
+                      );
+                    }
+                  },
+                }),
+              ]}
             >
               <InputNumber
                 value={batchSizeNom}
                 onChange={setBatchSizeNom}
                 style={{ width: 100 }}
+                controls={false}
               />
             </Form.Item>
-            <Form.Item name="Min" label="Min" rules={[{ required: true }]}>
+            <Form.Item
+              name="min"
+              label="Min"
+              // hasFeedback
+              dependencies={["max"]}
+              rules={[
+                {
+                  required: true,
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (getFieldValue("max") >= value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Min must be less than or equal to the max")
+                    );
+                  },
+                }),
+              ]}
+            >
               <InputNumber
                 value={batchSizeMin}
                 onChange={setBatchSizeMin}
                 style={{ width: 100 }}
+                controls={false}
               />
             </Form.Item>
-            <Form.Item name="Max" label="Max" rules={[{ required: true }]}>
+            <Form.Item
+              name="max"
+              label="Max"
+              // hasFeedback
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
               <InputNumber
                 value={batchSizeMax}
                 onChange={setBatchSizeMax}
                 style={{ width: 100 }}
+                controls={false}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Divider orientation="left">Required ProcessClasses</Divider>
             <Form.Item
-              name="Required Process Classes"
-              rules={[{ required: true }]}
+              name="requiredProcessClasses"
+              rules={[
+                {
+                  required: true,
+                  message: "Must select at least one process class",
+                },
+              ]}
             >
               <Transfer
                 onChange={onChange}
@@ -275,15 +309,31 @@ const NewRecipeForm = ({
               />
             </Form.Item>
             <Form.Item
-              name="Main Proccess Class"
+              name="mainProcessClass"
               label="Main Process Class"
-              rules={[{ required: true }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Must select at least one process class",
+                },
+              ]}
             >
               <Select
                 style={{ width: 200 }}
                 allowClear
                 options={mainBatchSelect}
               />
+            </Form.Item>
+            <Form.Item
+              wrapperCol={{
+                ...layout.wrapperCol,
+                offset: 16,
+              }}
+            >
+              <Space>
+                <Button onClick={handleCancel}>Cancel</Button>
+                <SubmitButton form={form} />
+              </Space>
             </Form.Item>
           </Col>
         </Row>

@@ -12,6 +12,15 @@ import RecipeProcedure from "./Routes/RecipeProcedure";
 import ErrorLog from "./Routes/ErrorLog";
 import ReportCIP from "./Routes/ReportCIP";
 import SampleCIPReport from "./Routes/SampleCIPReport";
+import Home from "./Home";
+import ErrorPage from "./Components/ErrorPage/ErrorPage";
+
+import { getProcedureData } from "./Requests/RecipeProcedure";
+
+async function procedureLoader({ params }) {
+  const procedureData = await getProcedureData(params.RID, params.Version);
+  return { procedureData };
+}
 
 // Routes for frontend navigation
 // TODO: Create an error route
@@ -19,7 +28,9 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorPage />,
     children: [
+      { index: true, element: <Home /> },
       {
         path: "recipes",
         element: <RecipeSearch />,
@@ -39,6 +50,21 @@ const router = createBrowserRouter([
       {
         path: "procedure",
         element: <RecipeProcedure />,
+        loader: () => {
+          return {
+            procedureData: {
+              procedure: null,
+              requiredProcessClasses: null,
+              RID: null,
+              Version: null,
+            },
+          };
+        },
+      },
+      {
+        path: "procedure/:RID/:Version",
+        element: <RecipeProcedure />,
+        loader: procedureLoader,
       },
       {
         path: "errorLog",

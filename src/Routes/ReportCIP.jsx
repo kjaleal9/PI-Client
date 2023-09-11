@@ -18,10 +18,26 @@ import {
 } from "antd";
 import { getCIPSelect, getCIPReports, getUnits } from "../Requests/reportCIP";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
 
 const { RangePicker } = DatePicker;
 
 const { SHOW_CHILD: CASC_SHOW_CHILD } = Cascader;
+
+function formatSecondsToHHMMSS(seconds) {
+  const duration = dayjs.duration(seconds * 1000);
+  if (seconds >= 86400) {
+    if (duration.days() === 1) {
+      return duration.format("D [day] HH:mm:ss");
+    } else {
+      return duration.format("D [days] HH:mm:ss");
+    }
+  } else {
+    return duration.format("HH:mm:ss");
+  }
+}
 
 const ReportCIP = () => {
   const [loading, setLoading] = useState(true);
@@ -58,7 +74,21 @@ const ReportCIP = () => {
             ),
           };
         });
-        setTableData(CIPReports);
+
+        const timeFormattedReports = CIPReports.map((report) => {
+          return {
+            ...report,
+            StartDateTime: dayjs(report.StartDateTime).format(
+              "DD/MM/YYYY HH:mm:ss.SSS"
+            ),
+            EndDateTime: dayjs(report.EndDateTime).format(
+              "DD/MM/YYYY HH:mm:ss.SSS"
+            ),
+            Duration: formatSecondsToHHMMSS(report.Duration),
+            TimeSinceLastCIP: formatSecondsToHHMMSS(report.TimeSinceLastCIP),
+          };
+        });
+        setTableData(timeFormattedReports);
         setCascaderData(cascaderData);
         setLoading(false);
       })
@@ -75,14 +105,19 @@ const ReportCIP = () => {
   };
 
   const onFinish = async (fieldsValue) => {
-    const circuits = [];
-    const units = [];
+    let circuits = [];
+    let units = [];
     const rangeTimeValue = fieldsValue["range-time-picker"];
 
-    fieldsValue.cascader.map((d) => {
-      circuits.push(d[1]);
-      units.push(d[2]);
-    });
+    if (fieldsValue.cascader === undefined) {
+      circuits = "undefined";
+      units = "undefined";
+    } else {
+      fieldsValue.cascader.map((d) => {
+        circuits.push(d[1]);
+        units.push(d[2]);
+      });
+    }
 
     const values = {
       units: units,
@@ -93,7 +128,22 @@ const ReportCIP = () => {
       ],
     };
 
-    getCIPReports(values).then((data) => setTableData(data));
+    getCIPReports(values).then((data) => {
+      const timeFormattedReports = data.map((report) => {
+        console.log(report.TimeSinceLastCIP);
+
+        return {
+          ...report,
+          StartDateTime: dayjs(report.StartDateTime).format(
+            "MM-DD-YYYY HH:mm:ss"
+          ),
+          EndDateTime: dayjs(report.EndDateTime).format("MM-DD-YYYY HH:mm:ss"),
+          Duration: formatSecondsToHHMMSS(report.Duration),
+          TimeSinceLastCIP: formatSecondsToHHMMSS(report.TimeSinceLastCIP),
+        };
+      });
+      setTableData(timeFormattedReports);
+    });
   };
 
   const columns = [
@@ -156,57 +206,58 @@ const ReportCIP = () => {
   return (
     <Row justify={"center"} gutter={[16, 16]}>
       <Col m={24}>
-        {!loading && (
-          <Card title="CIP Report Search" style={{ width: "1650px" }}>
-            <Form
-              name="CIP_summary_search"
-              layout="inline"
-              form={form}
-              onFinish={onFinish}
-              initialValues={{
-                "range-time-picker": [dayjs().add(-7, "d"), dayjs()],
-              }}
-            >
-              <Form.Item name="range-time-picker" label="Time Range">
-                <RangePicker
-                  showTime
-                  format="MM-DD-YYYY HH:mm:ss a"
-                  presets={rangePresets}
-                />
-              </Form.Item>
-              <Form.Item name="cascader" label="Circuit">
-                <Cascader
-                  style={{ width: "600px" }}
-                  options={cascaderData}
-                  onChange={onChange}
-                  multiple
-                  showSearch
-                  maxTagCount={6}
-                  showCheckedStrategy={CASC_SHOW_CHILD}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
-            <Divider></Divider>
-            <Table
-              size={"small"}
-              columns={columns}
-              dataSource={tableData}
-              pagination={{
-                // total: errorLog.length,
-                // showTotal: (total) => `Total ${total} items`,
-                defaultPageSize: 10,
-                pageSizeOptions: [5, 10, 15],
-                defaultCurrent: 1,
-                showSizeChanger: true,
-              }}
-            />
-          </Card>
-        )}
+        {/* {!loading && ( */}
+        <Card title="CIP Report Search" style={{ width: "1650px" }}>
+          <Form
+            name="CIP_summary_search"
+            layout="inline"
+            form={form}
+            onFinish={onFinish}
+            initialValues={{
+              "range-time-picker": [dayjs().add(-7, "d"), dayjs()],
+            }}
+          >
+            <Form.Item name="range-time-picker" label="Time Range">
+              <RangePicker
+                showTime
+                format="MM-DD-YYYY HH:mm:ss a"
+                presets={rangePresets}
+              />
+            </Form.Item>
+            <Form.Item name="cascader" label="Circuit">
+              <Cascader
+                style={{ width: "600px" }}
+                options={cascaderData}
+                onChange={onChange}
+                multiple
+                showSearch
+                maxTagCount={6}
+                showCheckedStrategy={CASC_SHOW_CHILD}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+          <Divider></Divider>
+          <Table
+            loading={loading}
+            size={"small"}
+            columns={columns}
+            dataSource={tableData}
+            pagination={{
+              total: tableData.length,
+              showTotal: (total) => `Total ${total} items`,
+              defaultPageSize: 15,
+              pageSizeOptions: [5, 10, 15],
+              defaultCurrent: 1,
+              showSizeChanger: true,
+            }}
+          />
+        </Card>
+        {/* )} */}
       </Col>
     </Row>
   );

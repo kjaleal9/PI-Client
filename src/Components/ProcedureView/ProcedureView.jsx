@@ -1,8 +1,9 @@
 import React from "react";
-import { Table } from "antd";
+import { Button, Table, Row, Col, Divider } from "antd";
+import { Link } from "react-router-dom";
 
 const ProcedureView = (props) => {
-  const { procedure } = props;
+  const { procedure, selected } = props;
 
   const columns = [
     {
@@ -17,17 +18,25 @@ const ProcedureView = (props) => {
   ];
 
   return (
-    <>
-      <Table
-        size="small"
-        pagination={false}
-        rowKey="ID"
-        columns={columns}
-        dataSource={procedure}
-        scroll={{ y: 580 }}
-       
-      />
-    </>
+    <Row gutter={[8, 8]} justify={"center"}>
+      <Col span={24}>
+        <Table
+          size="small"
+          pagination={false}
+          rowKey="ID"
+          columns={columns}
+          dataSource={procedure}
+          scroll={{ y: 570 }}
+        />
+      </Col>
+      <Col span={4}>
+        <Button type="link">
+          <Link to={`/procedure/${selected.RID}/${selected.Version}`}>
+            Edit Procedure
+          </Link>
+        </Button>
+      </Col>
+    </Row>
   );
 };
 

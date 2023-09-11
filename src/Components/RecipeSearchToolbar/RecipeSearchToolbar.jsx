@@ -9,6 +9,7 @@ import {
   Divider,
   Tooltip,
   Input,
+  message,
 } from "antd";
 
 import {
@@ -22,6 +23,7 @@ import {
   ExportOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { deleteRecipe } from "../../Requests/RecipeSearch";
 
 const RecipeSearchToolbar = ({
   anyRowSelected,
@@ -30,6 +32,8 @@ const RecipeSearchToolbar = ({
   handleDelete,
   filter,
   setFilter,
+  selected,
+  refreshTable,
 }) => {
   const [status, setStatus] = useState(null);
 
@@ -60,10 +64,15 @@ const RecipeSearchToolbar = ({
 
   const handleNewRecipe = () => setOpen(true);
 
-  const confirm = () =>
-    new Promise((resolve) => {
-      setTimeout(() => resolve(null), 3000);
-    });
+  const confirm = () => {
+    const { RID, Version } = selected;
+    deleteRecipe(RID, Version)
+      .then((response) => response.json())
+      .then((data) => {
+        refreshTable();
+        message.success("Recipe Deleted");
+      });
+  };
 
   return (
     <Space split={<Divider type="vertical" />}>
@@ -123,20 +132,34 @@ const RecipeSearchToolbar = ({
           ></Button>
         </Tooltip>
         <Tooltip title="Copy Recipe">
-          <Button icon={<CopyOutlined />} type="primary"></Button>
+          <Button
+            icon={<CopyOutlined />}
+            type="primary"
+            disabled={selected === ""}
+          ></Button>
         </Tooltip>
         <Tooltip title="Edit Recipe">
-          <Button icon={<EditOutlined />} type="primary"></Button>
+          <Button
+            icon={<EditOutlined />}
+            type="primary"
+            disabled={selected === ""}
+            onClick={refreshTable}
+          ></Button>
         </Tooltip>
-        <Tooltip title="Delete Recipe">
+        <Tooltip title="Delete Recipe" disabled={selected === ""}>
           <Popconfirm
             title="Are you sure delete this recipe?"
             okText="Yes"
             cancelText="No"
+            disabled={selected === ""}
             onConfirm={confirm}
             onOpenChange={() => console.log("open change")}
           >
-            <Button danger icon={<DeleteOutlined />}></Button>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              disabled={selected === ""}
+            ></Button>
           </Popconfirm>
         </Tooltip>
       </Space>

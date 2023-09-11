@@ -66,7 +66,6 @@ const RecipeView = (props) => {
     }
   }, [selected]);
 
-  console.log(selected);
   const recipe = [
     {
       key: "1",
@@ -105,7 +104,7 @@ const RecipeView = (props) => {
     {
       key: "1",
       label: "Recipe Procedure",
-      children: <ProcedureView procedure={procedure} />,
+      children: <ProcedureView procedure={procedure} selected={selected} />,
     },
     {
       key: "2",

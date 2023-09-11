@@ -32,6 +32,7 @@ const RecipeSearch = () => {
   const [materials, setMaterials] = useState([]);
   const [materialClasses, setMaterialClasses] = useState([]);
   const [processClasses, setProcessClasses] = useState([]);
+
   const [requiredProcessClasses, setRequiredProcessClasses] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [filteredInfo, setFilteredInfo] = useState({});
@@ -93,7 +94,7 @@ const RecipeSearch = () => {
         getRequiredProcessClasses(),
       ]);
     }
-
+    setLoading(true);
     getAllData()
       .then(
         ([
@@ -103,7 +104,6 @@ const RecipeSearch = () => {
           allProcessClasses,
           allRequiredProcessClasses,
         ]) => {
-          console.log(allRecipes);
           setFullDatabase(allRecipes);
           setLatestVersionRecipes(groupRecipes(allRecipes));
           setRows(groupRecipes(allRecipes));
@@ -219,7 +219,6 @@ const RecipeSearch = () => {
   return (
     <>
       <Row gutter={[16, 16]}>
-        {console.log(processClasses)}
         <NewRecipeForm
           open={open}
           setOpen={setOpen}
@@ -230,6 +229,7 @@ const RecipeSearch = () => {
           rows={rows}
           selected={selected}
           setSelected={setSelected}
+          refreshTable={refreshTable}
         />
         <Col sm={24} md={14}>
           <Card title="Recipe Search" style={{ height: "90vh" }}>
@@ -238,6 +238,8 @@ const RecipeSearch = () => {
               setFilter={setFilter}
               anyRowSelected={selected !== ""}
               setOpen={setOpen}
+              selected={selected}
+              refreshTable={refreshTable}
             />
             <Divider />
             <Table
@@ -251,6 +253,7 @@ const RecipeSearch = () => {
                 showTotal: (total) => `Total ${total} items`,
                 defaultPageSize: 15,
                 defaultCurrent: 1,
+                showSizeChanger: false,
               }}
               onRow={(record) => {
                 return {

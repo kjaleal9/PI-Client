@@ -6,12 +6,14 @@ import {
   LaptopOutlined,
   OrderedListOutlined,
   LineChartOutlined,
+  HomeFilled,
 } from "@ant-design/icons";
-import { Layout, Menu, theme, Typography, Image } from "antd";
+import { Layout, Menu, theme, Typography, Image, Space } from "antd";
 
 import { Link } from "react-router-dom";
 
 import { PlusOutlined } from "@ant-design/icons";
+import Home from "./Home";
 
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -25,56 +27,57 @@ function getItem(label, key, icon, children) {
 }
 
 const items = [
-  getItem(<Link to={"recipes"}>Recipes</Link>, "1", <ShopOutlined />),
-  getItem(<Link to={"trains"}>Trains</Link>, "2", <ShopOutlined />),
-  getItem(<Link to={"materials"}>Materials</Link>, "3", <LaptopOutlined />),
+  getItem(<Link to={"/"}>Home</Link>, "1", <HomeFilled />),
+  getItem(<Link to={"recipes"}>Recipes</Link>, "2", <ShopOutlined />),
   getItem(
     <Link to={"procedure"}>Procedures</Link>,
-    "4",
+    "3",
     <OrderedListOutlined />
   ),
-  getItem(<Link to={"errorLog"}>Errors</Link>, "5", <StopOutlined />),
+  getItem(<Link to={"trains"}>Trains</Link>, "4", <ShopOutlined />),
+  getItem(<Link to={"materials"}>Materials</Link>, "5", <LaptopOutlined />),
+  getItem(<Link to={"errorLog"}>Errors</Link>, "6", <StopOutlined />),
   getItem(
     <Link to={"reportCIP"}>CIP Reports</Link>,
-    "6",
-    <LineChartOutlined />
-  ),
-  getItem(
-    <Link to={"reportProduction"}>Production Reports</Link>,
     "7",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"performanceCIP"}>CIP Performance</Link>,
+    <Link to={"reportProduction"}>Production Reports</Link>,
     "8",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"performanceProduction"}>Production Performance</Link>,
+    <Link to={"performanceCIP"}>CIP Performance</Link>,
     "9",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"liveMonitoring"}>Live Monitoring</Link>,
+    <Link to={"performanceProduction"}>Production Performance</Link>,
     "10",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"qualityControl"}>QualityControl</Link>,
+    <Link to={"liveMonitoring"}>Live Monitoring</Link>,
     "11",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"traceability"}>Traceability</Link>,
+    <Link to={"qualityControl"}>QualityControl</Link>,
     "12",
     <LineChartOutlined />
   ),
   getItem(
-    <Link to={"sampleCIPReport"}>SampleCIPReport</Link>,
+    <Link to={"traceability"}>Traceability</Link>,
     "13",
     <LineChartOutlined />
   ),
-  getItem(<Link to={"plcPump"}>PLC Pump</Link>, "14", <LineChartOutlined />),
+  getItem(
+    <Link to={"sampleCIPReport"}>SampleCIPReport</Link>,
+    "14",
+    <LineChartOutlined />
+  ),
+  getItem(<Link to={"plcPump"}>PLC Pump</Link>, "15", <LineChartOutlined />),
 ];
 
 const App = () => {
@@ -104,19 +107,18 @@ const App = () => {
           backgroundColor: "#1520A6",
         }}
       >
-        <Image src="%PUBLIC_URL%/TP_Logo.png"></Image>
-        <Typography.Title
-          level={3}
-          style={{
-            margin: 0,
-            color: "whitesmoke",
-          }}
-        >
-          Production Integrator{" "}
-          {
-            //<PlusOutlined />}
-          }
-        </Typography.Title>
+        <Space>
+          <Image src="./TP_Logo.png" width={50} />
+          <Typography.Title
+            level={2}
+            style={{
+              margin: 0,
+              color: "whitesmoke",
+            }}
+          >
+            Production Integrator
+          </Typography.Title>
+        </Space>
       </Header>
       <Layout>
         <Sider
@@ -132,7 +134,7 @@ const App = () => {
         >
           <Menu
             mode="inline"
-            defaultSelectedKeys={["1"]}
+            // defaultSelectedKeys={["1"]}
             defaultOpenKeys={["sub1"]}
             style={{
               marginTop: "10px",
