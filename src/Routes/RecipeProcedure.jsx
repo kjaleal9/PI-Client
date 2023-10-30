@@ -9,9 +9,10 @@ import {
   getMaterialClasses,
   getStepTypes,
   getProcedureData,
+  getStepParameters,
 } from "../Requests/RecipeProcedure";
 
-import { Button, Card, Table, Row, Col, Select } from "antd";
+import { Button, Card, Table, Row, Col, Select, Typography } from "antd";
 
 import { MenuOutlined } from "@ant-design/icons";
 import { DndContext } from "@dnd-kit/core";
@@ -23,6 +24,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import StepView from "../Components/StepView/StepView";
+const { Title, Text } = Typography;
 
 const columns = [
   {
@@ -31,7 +34,7 @@ const columns = [
   },
   {
     title: "Step",
-    dataIndex: "Step",
+    dataIndex: "Step1",
     width: 61,
   },
   {
@@ -103,22 +106,50 @@ const RecipeProcedure = () => {
   const [recipes, setRecipes] = useState([]);
   const [recipeSelect, setRecipeSelect] = useState("");
   const [versionSelect, setVersionSelect] = useState("");
+  const [selectedRecipe, setSelectedRecipe] = useState([]);
+
+  const [selected, setSelected] = useState("");
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [steps, setSteps] = useState([]);
+  const [stepParameters, setStepParameters] = useState([]);
+  const { procedureData } = useLoaderData();
 
   const [phases, setPCPhases] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [materialClasses, setMaterialClasses] = useState([]);
-  const [selected, setSelected] = useState("");
-  const [steps, setSteps] = useState([]);
   const [stepTypes, setStepTypes] = useState("");
   const [equipment, setEquipment] = useState([]);
 
-  const [selectedRecipe, setSelectedRecipe] = useState([]);
   const [selectedRER, setSelectedRER] = useState("");
   const [isProcedureEditable, setIsProcedureEditable] = useState(false);
-  const { procedureData } = useLoaderData();
+
+  const [stepTypeSelect, setStepTypeSelect] = useState(stepTypes);
+
+  useEffect(() => {
+    loadData();
+    const { procedure, RID, Version } = procedureData;
+    async function setFieldData() {
+      setSelectedRecipe(procedure);
+      setRecipeSelect(RID);
+      setVersionSelect(Version);
+    }
+    if (procedure) {
+      setFieldData();
+    }
+  }, []);
+
+  useEffect(() => {
+    setVersionSelect("");
+  }, [recipeSelect]);
+
+  useEffect(() => {
+    const sortedSteps = selectedRecipe.map((step, index) => {
+      return { ...step, Step: index + 1, key: step.ID };
+    });
+    setSteps(sortedSteps);
+  }, [selectedRecipe]);
 
   // Move to route loader
-
   function loadData() {
     function getAllData() {
       return Promise.all([
@@ -143,44 +174,40 @@ const RecipeProcedure = () => {
         ]) => {
           setRecipes(recipes);
           setPCPhases(pcPhases);
-          setStepTypes(stepTypes);
           setMaterials(allMaterials);
           setMaterialClasses(allMaterialClasses);
           setEquipment(requiredEquipment);
+          const formattedStepTypes = stepTypes.map((step) => {
+            return {
+              value: step.ID,
+              label: step.Name,
+            };
+          });
+          setStepTypes(formattedStepTypes);
         }
       )
       .catch((err) => console.log(err, "uih"));
   }
 
   useEffect(() => {
-    loadData();
-    const { procedure, RID, Version } = procedureData;
-    async function setFieldData() {
-      setSelectedRecipe(procedure);
-      await setRecipeSelect(RID);
-      setVersionSelect(Version);
+    console.log(selected);
+    if (selected.TPIBK_StepType_ID <= 5) {
+      getStepParameters(selected.ID, selected.ProcessClassPhase_ID).then(
+        (data) => {
+          console.log(data);
+          setStepParameters(data);
+        }
+      );
+    } else {
+      setStepParameters([]);
     }
-    if (procedure) {
-      setFieldData();
-    }
-  }, []);
-
-  useEffect(() => {
-    setVersionSelect("");
-  }, [recipeSelect]);
-
-  useEffect(() => {
-    const sortedSteps = selectedRecipe.map((step, index) => {
-      return { ...step, Step: index + 1 };
-    });
-    setSteps(sortedSteps);
-  }, [selectedRecipe]);
+  }, [selectedRowKeys]);
 
   const handleNewStep = () => {};
   const handleDeleteStep = () => {};
   const handleEditStep = () => {};
 
-  const procedureSearchButton = () => {
+  const onProcedureSearchButton = () => {
     fetch(
       `${process.env.REACT_APP_API_URL}/recipes/procedure/${recipeSelect}/${versionSelect}`
     ).then((response) =>
@@ -219,6 +246,18 @@ const RecipeProcedure = () => {
   //   setIsProcedureEditable(true);
   // };
 
+  const onSelectChange = (record) => {
+    const selectedRow = selected.ID === record.ID;
+
+    if (selectedRow === false) {
+      setSelected(record);
+      setSelectedRowKeys([record.key]);
+    } else {
+      setSelected("");
+      setSelectedRowKeys([]);
+    }
+  };
+
   const onDragEnd = ({ active, over }) => {
     if (active.id !== over?.id) {
       setSteps((previous) => {
@@ -237,7 +276,7 @@ const RecipeProcedure = () => {
 
   return (
     <Row>
-      <Col span={12}>
+      <Col sm={24} md={12}>
         <Card style={{ height: "calc(100vh - 100px)" }}>
           <Row>
             <Col span={12}>
@@ -287,7 +326,7 @@ const RecipeProcedure = () => {
                 type="primary"
                 disabled={!versionSelect}
                 style={{ width: "100%" }}
-                onClick={procedureSearchButton}
+                onClick={onProcedureSearchButton}
               >
                 Confirm
               </Button>
@@ -313,10 +352,46 @@ const RecipeProcedure = () => {
                 columns={columns}
                 dataSource={steps}
                 scroll={{ y: "75vh" }}
+                onRow={(record) => {
+                  return {
+                    style: { cursor: "pointer" },
+                    onClick: () => {
+                      onSelectChange(record);
+                    },
+                  };
+                }}
+                rowSelection={{
+                  type: "radio",
+                  selectedRowKeys,
+                  getCheckboxProps: () => {
+                    return {
+                      style: {
+                        display: "none",
+                      },
+                    };
+                  },
+                  onChange: onSelectChange,
+                }}
               />
             </SortableContext>
           </DndContext>
         </Card>
+      </Col>
+      <Col sm={24} md={12}>
+        {selected && (
+          <Card>
+            <Title level={4}>Step Details</Title>
+            <Text>
+              Type
+              {
+                stepTypes.find(
+                  (step) => step["value"] === selected.TPIBK_StepType_ID
+                )["label"]
+              }
+            </Text>
+
+          </Card>
+        )}
       </Col>
     </Row>
   );

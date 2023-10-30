@@ -78,6 +78,7 @@ const items = [
     <LineChartOutlined />
   ),
   getItem(<Link to={"plcPump"}>PLC Pump</Link>, "15", <LineChartOutlined />),
+  getItem(<Link to={"recipeParameters"}>Recipe Parameters</Link>, "16", <LineChartOutlined />),
 ];
 
 const App = () => {

@@ -40,9 +40,27 @@ const RecipeSearch = () => {
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
+  const [filter, setFilter] = useState({
+    showAll: false,
+    approved: false,
+    registered: false,
+    obsolete: false,
+    search: "",
+  });
+
+  useEffect(() => {
+    refreshTable();
+  }, []);
+
+  // Table filter useEffect. Runs everytime the filter changes
+  useEffect(() => {
+    filterRows();
+  }, [filter]);
+
   const showModal = () => {
     setOpen(true);
   };
+
   const handleOk = () => {
     setModalText("The modal will be closed after two seconds");
     setConfirmLoading(true);
@@ -51,17 +69,11 @@ const RecipeSearch = () => {
       setConfirmLoading(false);
     }, 2000);
   };
+
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
   };
-  const [filter, setFilter] = useState({
-    showAll: false,
-    approved: false,
-    registered: false,
-    obsolete: false,
-    search: "",
-  });
 
   function groupRecipes(rows) {
     function groupBy(objectArray, property) {
@@ -116,15 +128,6 @@ const RecipeSearch = () => {
       .then(() => setLoading(false))
       .catch((err) => console.log(err));
   }
-
-  useEffect(() => {
-    refreshTable();
-  }, []);
-
-  // Table filter useEffect. Runs everytime the filter changes
-  useEffect(() => {
-    filterRows();
-  }, [filter]);
 
   async function filterRows() {
     console.time("Filter");

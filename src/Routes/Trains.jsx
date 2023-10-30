@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Card, Table, Row, Col, Space } from "antd";
 import { getTrains } from "../Requests/Trains";
 
+// Create a flowchart to visually show trains
+
 const Trains = () => {
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState({});

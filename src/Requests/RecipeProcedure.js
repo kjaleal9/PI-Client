@@ -29,6 +29,12 @@ function getEquipment() {
   );
 }
 
+function getStepParameters(batchID, pClassID) {
+  return fetch(
+    `${process.env.REACT_APP_API_URL}/recipes/parameters/${batchID}/${pClassID}`
+  ).then((response) => response.json());
+}
+
 function getProcedureData(RID, Version) {
   function getProcedure() {
     return fetch(
@@ -54,5 +60,6 @@ export {
   getMaterials,
   getMaterialClasses,
   getEquipment,
+  getStepParameters,
   getProcedureData,
 };
