@@ -79,6 +79,7 @@ const items = [
   ),
   getItem(<Link to={"plcPump"}>PLC Pump</Link>, "15", <LineChartOutlined />),
   getItem(<Link to={"recipeParameters"}>Recipe Parameters</Link>, "16", <LineChartOutlined />),
+  getItem(<Link to={"batchTimes"}>Batch Times</Link>, "17", <LineChartOutlined />),
 ];
 
 const App = () => {

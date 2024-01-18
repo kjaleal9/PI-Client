@@ -14,6 +14,7 @@ import ReportCIP from "./Routes/ReportCIP";
 import SampleCIPReport from "./Routes/SampleCIPReport";
 import Home from "./Home";
 import ErrorPage from "./Components/ErrorPage/ErrorPage";
+import BatchTimes from "./Routes/BatchTimes";
 
 import { getProcedureData } from "./Requests/RecipeProcedure";
 
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "sampleCIPReport",
         element: <SampleCIPReport />,
+      },
+      {
+        path: "batchTimes",
+        element: <BatchTimes/>,
       },
     ],
   },
